@@ -1,17 +1,18 @@
 version: 2.1
 
 jobs:
-  linux-terminal:
+  terminal:
     docker:
-      - image: cimg/base:stable  # Basic Linux container
+      - image: cimg/base:stable
     steps:
-      - checkout
       - run:
-          name: Print Linux Info
-          command: 
-          lscpu
+          name: Setup SSH Access
+          command: |
+            echo "Linux terminal is ready!"
+            echo "Use SSH after job starts to connect."
+            sleep 3600  # Keeps job running 1 hour for SSH use
 
 workflows:
-  linux-terminal-workflow:
+  ssh-terminal:
     jobs:
-      - linux-terminal
+      - terminal
