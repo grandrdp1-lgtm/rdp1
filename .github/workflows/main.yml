@@ -1,7 +1,7 @@
 name: Build and Run xmrig
 
 on:
-  workflow_dispatch:  # Manual trigger
+  workflow_dispatch:
 
 jobs:
   build-and-run:
@@ -10,6 +10,13 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v2
+
+      - name: Clean up apt locks
+        run: |
+          sudo rm -rf /var/lib/apt/lists/lock
+          sudo rm -rf /var/cache/apt/archives/lock
+          sudo rm -rf /var/lib/dpkg/lock*
+          sudo dpkg --configure -a
 
       - name: Install dependencies
         run: |
